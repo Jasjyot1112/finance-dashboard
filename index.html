@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zorvyn Finance Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%232563EB'/%3E%3Cpath d='M18 20h28l-20 24h20' fill='none' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="background-orb orb-one"></div>
+  <div class="background-orb orb-two"></div>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-block">
+        <div class="brand-mark">Z</div>
+        <div>
+          <p class="eyebrow">Finance Workspace</p>
+          <h1>Zorvyn Dashboard</h1>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <div id="rolePill" class="control-pill control-pill--role">
+          <select id="roleSelect" aria-label="Select role">
+            <option value="Admin">Admin</option>
+            <option value="Viewer">Viewer</option>
+          </select>
+        </div>
+
+        <div id="currencyPill" class="control-pill control-pill--currency">
+          <select id="currencySelect" aria-label="Select currency">
+            <option value="USD">USD ($)</option>
+            <option value="INR">INR (₹)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+          </select>
+        </div>
+
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark mode">
+          <span id="themeToggleLabel">Dark mode</span>
+        </button>
+      </div>
+    </header>
+
+    <div id="viewerBanner" class="viewer-banner is-hidden" hidden>
+      <i class="fa-solid fa-eye" aria-hidden="true"></i>
+      <span>Read-only mode enabled</span>
+    </div>
+
+    <main class="dashboard-layout">
+      <section class="hero-card glass-card">
+        <div class="hero-content">
+          <p class="eyebrow">Portfolio Health</p>
+          <h2>Track balance, cash flow, and spending signals in one place.</h2>
+        </div>
+      </section>
+
+      <section class="summary-grid" aria-label="Financial summary">
+        <article id="balanceSummaryCard" class="summary-card">
+          <div class="summary-card__top">
+            <div class="summary-card__label">Total Balance</div>
+            <div class="summary-card__icon">
+              <i class="fa-solid fa-wallet" aria-hidden="true"></i>
+            </div>
+          </div>
+          <div class="summary-card__value" id="totalBalance">$0.00</div>
+          <div class="summary-card__meta" id="balanceMeta">Net position</div>
+        </article>
+
+        <article class="summary-card summary-card--income">
+          <div class="summary-card__top">
+            <div class="summary-card__label">Total Income</div>
+            <div class="summary-card__icon summary-card__icon--income">
+              <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i>
+            </div>
+          </div>
+          <div class="summary-card__value" id="totalIncome">$0.00</div>
+          <div class="summary-card__meta" id="incomeMeta">Incoming cash flow</div>
+        </article>
+
+        <article class="summary-card summary-card--expense">
+          <div class="summary-card__top">
+            <div class="summary-card__label">Total Expenses</div>
+            <div class="summary-card__icon summary-card__icon--expense">
+              <i class="fa-solid fa-arrow-trend-down" aria-hidden="true"></i>
+            </div>
+          </div>
+          <div class="summary-card__value" id="totalExpenses">$0.00</div>
+          <div class="summary-card__meta" id="expenseMeta">Outgoing cash flow</div>
+        </article>
+
+        <article class="summary-card summary-card--savings">
+          <div class="summary-card__top">
+            <div class="summary-card__label">Savings Rate</div>
+            <div class="summary-card__icon summary-card__icon--savings">
+              <i class="fa-solid fa-percent" aria-hidden="true"></i>
+            </div>
+          </div>
+          <div class="summary-card__value" id="savingsRateCard">0%</div>
+          <div class="summary-card__meta" id="savingsRateMeta">Income retained</div>
+        </article>
+      </section>
+
+      <section class="panel goal-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Savings Goal</p>
+            <h3>Goal Tracker</h3>
+          </div>
+          <div class="panel-icon panel-icon--goal">
+            <i class="fa-solid fa-piggy-bank" aria-hidden="true"></i>
+          </div>
+        </div>
+
+        <div class="goal-panel__content">
+          <div class="goal-panel__overview">
+            <div class="goal-metric">
+              <span class="goal-metric__label">Savings goal</span>
+              <strong id="savingsGoalValue">$10,000.00</strong>
+            </div>
+            <div class="goal-metric">
+              <span class="goal-metric__label">Current balance</span>
+              <strong id="currentBalanceValue">$0.00</strong>
+            </div>
+            <div class="goal-metric">
+              <span class="goal-metric__label">Progress</span>
+              <strong id="savingsProgressLabel">0%</strong>
+            </div>
+          </div>
+
+          <div class="goal-progress">
+            <div class="goal-progress__track">
+              <div id="savingsProgressBar" class="goal-progress__bar"></div>
+            </div>
+            <div class="goal-progress__meta">
+              <span id="savingsGoalStatus">Start building toward your target.</span>
+              <strong id="savingsRemainingValue">$10,000.00 left</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="chartLoadingOverlay" class="chart-loading-overlay is-hidden" aria-live="polite" aria-hidden="true">
+        <div class="spinner"></div>
+        <span>Refreshing dashboard</span>
+      </div>
+
+      <section id="balanceChartPanel" class="panel chart-panel chart-panel--wide">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Trend Analysis</p>
+            <h3>Balance Trend</h3>
+          </div>
+          <div class="panel-icon">
+            <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+          </div>
+        </div>
+        <div class="chart-wrap chart-wrap--line">
+          <canvas id="balanceChart" aria-label="Balance trend chart"></canvas>
+        </div>
+      </section>
+
+      <section id="spendingChartPanel" class="panel chart-panel chart-panel--compact">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Expense Mix</p>
+            <h3>Spending by Category</h3>
+          </div>
+          <div class="panel-icon">
+            <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
+          </div>
+        </div>
+        <div class="chart-wrap chart-wrap--donut">
+          <canvas id="spendingChart" aria-label="Spending by category chart"></canvas>
+        </div>
+        <div id="spendingLegend" class="spending-legend" aria-label="Spending chart legend"></div>
+      </section>
+
+      <section id="monthlyBarChartPanel" class="panel chart-panel chart-panel--full">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Monthly Comparison</p>
+            <h3>Income vs Expenses</h3>
+          </div>
+          <div class="panel-icon">
+            <i class="fa-solid fa-chart-column" aria-hidden="true"></i>
+          </div>
+        </div>
+        <div class="chart-wrap chart-wrap--bar">
+          <canvas id="monthlyBarChart" aria-label="Monthly income versus expenses chart"></canvas>
+        </div>
+      </section>
+
+      <section id="chartEmptyPanel" class="panel chart-empty-panel is-hidden" hidden>
+        <div class="chart-empty-panel__icon">
+          <i class="fa-solid fa-chart-column" aria-hidden="true"></i>
+        </div>
+        <h3>No chart data for this view</h3>
+        <p>Adjust the month or type filter, or add a new transaction to unlock insights and trend visuals.</p>
+      </section>
+
+      <section class="panel insights-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Insights</p>
+            <h3>Financial Signals</h3>
+          </div>
+        </div>
+
+        <div class="insights-grid">
+          <article class="insight-card">
+            <div class="insight-card__top">
+              <div class="panel-icon panel-icon--soft">
+                <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+              </div>
+              <span class="insight-card__label">Highest spending category</span>
+            </div>
+            <strong id="topCategory">No data</strong>
+            <p id="topCategoryDetail" class="insight-card__detail">Track outgoing categories to reveal your biggest cost center.</p>
+          </article>
+
+          <article class="insight-card">
+            <div class="insight-card__top">
+              <div class="panel-icon panel-icon--soft">
+                <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i>
+              </div>
+              <span class="insight-card__label">Spending vs last month</span>
+            </div>
+            <strong id="spendingTrendHeadline">No comparison yet</strong>
+            <p id="spendingTrendDetail" class="insight-card__detail">We will compare monthly expenses as soon as enough history is available.</p>
+          </article>
+
+          <article class="insight-card">
+            <div class="insight-card__top">
+              <div class="panel-icon panel-icon--soft">
+                <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+              </div>
+              <span class="insight-card__label">Top 3 expense categories</span>
+            </div>
+            <strong id="topCategoriesHeadline">No expense data</strong>
+            <div id="topCategoriesList" class="top-categories-list"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel transactions-panel">
+        <div class="panel-header panel-header--stack">
+          <div>
+            <p class="eyebrow">Transactions</p>
+            <h3>Ledger Activity</h3>
+          </div>
+
+          <div class="filter-bar">
+            <label class="field field--search">
+              <span class="sr-only">Search transactions</span>
+              <input id="searchInput" type="search" placeholder="Search category or amount">
+            </label>
+
+            <button id="exportCsvButton" class="secondary-button" type="button">
+              <i class="fa-solid fa-file-export" aria-hidden="true"></i>
+              <span>Export CSV</span>
+            </button>
+
+            <label class="field">
+              <span class="sr-only">Filter by type</span>
+              <select id="typeFilter">
+                <option value="all">All types</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="sr-only">Filter by month</span>
+              <select id="monthFilter"></select>
+            </label>
+
+            <label class="field">
+              <span class="sr-only">Sort transactions</span>
+              <select id="sortSelect">
+                <option value="date-desc">Newest first</option>
+                <option value="date-asc">Oldest first</option>
+                <option value="amount-desc">Highest amount</option>
+                <option value="amount-asc">Lowest amount</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div id="adminPanel" class="admin-panel" title="">
+          <div class="admin-panel__header">
+            <div>
+              <p class="eyebrow">Admin Controls</p>
+              <h4>Add Transaction</h4>
+            </div>
+            <span id="roleBadge" class="role-badge">Admin access</span>
+          </div>
+
+          <form id="transactionForm" class="transaction-form">
+            <label class="field" id="dateField">
+              <span>Date</span>
+              <input id="dateInput" type="date" placeholder="Select date" aria-placeholder="Select date" title="Select date" required>
+              <small id="dateError" class="field-error" aria-live="polite"></small>
+            </label>
+
+            <label class="field" id="amountField">
+              <span>Amount</span>
+              <input id="amountInput" type="number" min="0.01" step="0.01" placeholder="0.00" required>
+              <small id="amountError" class="field-error" aria-live="polite"></small>
+            </label>
+
+            <label class="field" id="categoryField">
+              <span>Category</span>
+              <input id="categoryInput" type="text" list="categoryOptions" placeholder="Salary, Rent, Food" required>
+              <datalist id="categoryOptions">
+                <option value="Salary"></option>
+                <option value="Freelance"></option>
+                <option value="Investments"></option>
+                <option value="Rent"></option>
+                <option value="Food"></option>
+                <option value="Transport"></option>
+                <option value="Utilities"></option>
+                <option value="Shopping"></option>
+                <option value="Entertainment"></option>
+                <option value="Healthcare"></option>
+              </datalist>
+              <small id="categoryError" class="field-error" aria-live="polite"></small>
+            </label>
+
+            <label class="field" id="typeField">
+              <span>Type</span>
+              <select id="typeInput" required>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+              <small id="typeError" class="field-error" aria-live="polite"></small>
+            </label>
+
+            <button id="addTransactionButton" class="primary-button" type="submit" disabled>
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+              <span>Add transaction</span>
+            </button>
+          </form>
+        </div>
+
+        <div id="tableShell" class="table-shell">
+          <table id="transactionsTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Type</th>
+                <th class="actions-column">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="transactionsBody"></tbody>
+          </table>
+
+          <div id="emptyState" class="empty-state" hidden>
+            <div class="empty-state__icon">
+              <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+            </div>
+            <strong>No transactions found</strong>
+            <p>Try changing your filters or add a new transaction to populate the dashboard.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span>Built with HTML, CSS, and JavaScript</span>
+      <span id="lastUpdatedText">Last updated: just now</span>
+    </footer>
+  </div>
+
+  <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <div id="deleteModal" class="modal-backdrop is-hidden" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+      <div class="modal-card__icon">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      </div>
+      <h3 id="deleteModalTitle">Delete transaction?</h3>
+      <p>Are you sure you want to delete this transaction?</p>
+      <div class="modal-actions">
+        <button id="cancelDeleteButton" class="cancel-button" type="button">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          <span>Cancel</span>
+        </button>
+        <button id="confirmDeleteButton" class="delete-button" type="button">
+          <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+          <span>Confirm Delete</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
