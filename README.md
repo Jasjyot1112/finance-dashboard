@@ -1,4 +1,4 @@
-# Zorvyn Finance Dashboard
+# Finance Dashboard
 
 Zorvyn Finance Dashboard is a lightweight fintech-style web application built with HTML, CSS, and vanilla JavaScript. It helps users track transactions, monitor balance trends, review category spending, and explore financial insights through a polished, responsive dashboard experience.
 
